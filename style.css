@@ -1,0 +1,374 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+/* Layout Principal */
+.app-container {
+  display: flex;
+  height: calc(100vh - 90px);
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #000000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1db954;
+  font-size: 20px;
+}
+
+.user-info {
+  font-size: 13px;
+  color: #b3b3b3;
+  background: #181818;
+  padding: 12px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-info strong {
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #1e1e1e 0%, #121212 100%);
+}
+
+.search-container {
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+#search-input {
+  width: 100%;
+  max-width: 450px;
+  padding: 12px 20px;
+  border-radius: 50px;
+  border: 1px solid #333;
+  background-color: #242424;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#search-input:focus {
+  border-color: #1db954;
+}
+
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.song-card {
+  background-color: #181818;
+  padding: 16px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.song-card:hover {
+  background-color: #282828;
+}
+
+.song-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.song-card h3 {
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-card p {
+  font-size: 13px;
+  color: #b3b3b3;
+}
+
+.card-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.btn-primary {
+  background-color: #1db954;
+  color: #000;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #1ed760;
+}
+
+.btn-secondary {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-logout {
+  margin-top: auto;
+  width: 100%;
+  padding: 10px;
+}
+
+/* Player Rodapé */
+.player-bar {
+  height: 90px;
+  background-color: #181818;
+  border-top: 1px solid #282828;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.track-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 30%;
+}
+
+.player-album-art {
+  width: 55px;
+  height: 55px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.track-text {
+  display: flex;
+  flex-direction: column;
+}
+
+#player-title {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#player-artist {
+  font-size: 12px;
+  color: #b3b3b3;
+}
+
+/* Controls & Volume */
+.player-controls {
+  display: flex;
+  justify-content: center;
+  width: 40%;
+}
+
+.volume-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 30%;
+  justify-content: flex-end;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: #b3b3b3;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-icon:hover {
+  color: #ffffff;
+}
+
+#volume-slider {
+  width: 100px;
+  accent-color: #1db954;
+  cursor: pointer;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.hidden { display: none; }
+
+.modal-content {
+  background-color: #282828;
+  padding: 30px;
+  border-radius: 10px;
+  width: 420px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 10px; right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+#song-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#song-form label {
+  font-size: 13px;
+  color: #ccc;
+}
+
+#song-form input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background-color: #121212;
+  color: #fff;
+}
+
+/* Tela de Login */
+.login-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #222222 0%, #000000 100%);
+}
+
+.login-container {
+  background-color: #121212;
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  border: 1px solid #282828;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.spotify-logo {
+  font-size: 48px;
+  color: #1db954;
+  margin-bottom: 10px;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #282828;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: #a7a7a7;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.tab-btn.active {
+  color: #1db954;
+  border-bottom: 2px solid #1db954;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-form.hidden { display: none; }
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.input-group input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background-color: #121212;
+  color: #fff;
+}
+
+.btn-block {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.error-message {
+  color: #f15e6c;
+  font-size: 13px;
+  margin-top: 15px;
+  text-align: center;
+}
