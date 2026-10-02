@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify Clone - Entrar</title>
+  <title>Spotify Clone - Student Demo</title>
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1db954">
@@ -18,33 +18,43 @@
       <h1>Spotify Clone</h1>
     </div>
 
+    <!-- Banner de Isenção (Evita o bloqueio de segurança/phishing) -->
+    <div class="demo-disclaimer" style="background: #282828; color: #b3b3b3; padding: 10px; border-radius: 6px; font-size: 11px; margin-bottom: 16px; text-align: center; border: 1px solid #1db954;">
+      <i class="fa-solid fa-graduation-cap" style="color: #1db954; font-size: 14px;"></i><br>
+      <strong>PROJETO ACADÊMICO DE ESTUDO</strong><br>
+      Este site é uma demonstração educacional sem fins lucrativos.<br>
+      <strong>Não insira suas credenciais reais do Spotify.</strong>
+    </div>
+
     <div class="auth-tabs">
       <button id="tab-login" class="tab-btn active">Entrar</button>
       <button id="tab-signup" class="tab-btn">Cadastrar</button>
     </div>
 
+    <!-- Form 1: Entrar -->
     <form id="form-login" class="auth-form">
       <div class="input-group">
-        <label for="login-email">E-mail</label>
-        <input type="email" id="login-email" required placeholder="seu@email.com">
+        <label for="login-email">E-mail de Teste</label>
+        <input type="email" id="login-email" required placeholder="seu_email_de_teste@exemplo.com">
       </div>
       <div class="input-group">
-        <label for="login-password">Senha</label>
-        <input type="password" id="login-password" required placeholder="Sua senha">
+        <label for="login-password">Senha de Teste</label>
+        <input type="password" id="login-password" required placeholder="Sua senha de teste">
       </div>
-      <button type="submit" class="btn-primary btn-block">Entrar</button>
+      <button type="submit" class="btn-primary btn-block">Entrar na Demonstração</button>
     </form>
 
+    <!-- Form 2: Criar Conta -->
     <form id="form-signup" class="auth-form hidden">
       <div class="input-group">
-        <label for="signup-email">E-mail</label>
-        <input type="email" id="signup-email" required placeholder="seu@email.com">
+        <label for="signup-email">E-mail para Cadastro</label>
+        <input type="email" id="signup-email" required placeholder="seu_email_de_teste@exemplo.com">
       </div>
       <div class="input-group">
-        <label for="signup-password">Senha</label>
+        <label for="signup-password">Senha de Teste</label>
         <input type="password" id="signup-password" required placeholder="Mínimo 6 caracteres">
       </div>
-      <button type="submit" class="btn-primary btn-block">Criar Conta</button>
+      <button type="submit" class="btn-primary btn-block">Criar Conta de Teste</button>
     </form>
 
     <p id="auth-error" class="error-message"></p>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify Clone - Biblioteca</title>
+  <title>Spotify Clone - Educational Project</title>
   
   <!-- Configurações PWA -->
   <link rel="manifest" href="manifest.json">
@@ -19,9 +19,14 @@
     <aside class="sidebar">
       <div class="logo">
         <i class="fa-brands fa-spotify"></i>
-        <h2>Spotify</h2>
+        <h2>Spotify Clone</h2>
       </div>
       
+      <!-- Banner discreto na barra lateral -->
+      <div style="font-size: 10px; color: #888; background: #181818; padding: 6px; border-radius: 4px; text-align: center; border: 1px solid #333;">
+        Projeto Acadêmico
+      </div>
+
       <div class="user-info">
         <span>Conectado como:</span>
         <strong id="user-email-display">Carregando...</strong>
@@ -101,7 +106,6 @@
     </div>
   </div>
 
-  <!-- Registro do Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js')
