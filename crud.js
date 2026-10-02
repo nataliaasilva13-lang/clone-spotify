@@ -1,157 +1,83 @@
 import { rtdb, auth } from './firebaseconfig.js';
-import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
-  ref, push, onValue, remove 
+  ref, 
+  push, 
+  onValue, 
+  remove 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// DOM
-const userEmailDisplay = document.getElementById('user-email-display');
-const btnLogout = document.getElementById('btn-logout');
+// Capa padrão em SVG (caso a música não tenha capa enviada)
+const DEFAULT_COVER_SVG = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 24 24' fill='%231db954'><rect width='100%' height='100%' fill='%23282828'/><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>`;
 
+// Elementos do DOM
 const songGrid = document.getElementById('song-grid');
 const songForm = document.getElementById('song-form');
 const modal = document.getElementById('modal');
 const btnOpenModal = document.getElementById('btn-open-modal');
 const btnCloseModal = document.getElementById('btn-close-modal');
+const btnLogout = document.getElementById('btn-logout');
+const userEmailDisplay = document.getElementById('user-email-display');
 const searchInput = document.getElementById('search-input');
 
+// Elementos do Player de Áudio
 const audioPlayer = document.getElementById('audio-player');
+const playerCover = document.getElementById('player-cover');
 const playerTitle = document.getElementById('player-title');
 const playerArtist = document.getElementById('player-artist');
-const playerCover = document.getElementById('player-cover');
-
-// Controles de Volume
 const volumeSlider = document.getElementById('volume-slider');
 const btnMute = document.getElementById('btn-mute');
 const volumeIcon = document.getElementById('volume-icon');
 
+// Referência do banco
+const songsRef = ref(rtdb, 'musicas');
+let allSongs = [];
 let lastVolume = 1;
 
-// Variáveis de Estado
-let allSongs = [];
-const songsRef = ref(rtdb, 'musicas');
-
-// Placeholder SVG limpo e offline
-const DEFAULT_COVER_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 24 24' fill='%231db954'><rect width='100%' height='100%' fill='%23282828'/><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
-
-// Proteção de Rota
+// ----------------------------------------------------
+// 1. SEGURANÇA E AUTENTICAÇÃO
+// ----------------------------------------------------
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "login.html";
+  if (user) {
+    if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+    carregarMusicas();
   } else {
-    if (userEmailDisplay) {
-      const usuarioPuro = user.email.split('@')[0];
-      const nomeFormatado = usuarioPuro.charAt(0).toUpperCase() + usuarioPuro.slice(1);
-      userEmailDisplay.textContent = nomeFormatado;
-    }
+    // Redireciona para o login se não estiver autenticado
+    window.location.href = 'login.html';
   }
 });
 
 btnLogout?.addEventListener('click', () => {
   signOut(auth).then(() => {
-    window.location.href = "login.html";
+    window.location.href = 'login.html';
   });
 });
 
-//volume
-if (volumeSlider && audioPlayer) {
-  // Ajuste deslizante
-  volumeSlider.addEventListener('input', (e) => {
-    const val = parseFloat(e.target.value);
-    audioPlayer.volume = val;
-    updateVolumeIcon(val);
-  });
+// ----------------------------------------------------
+// 2. TELA E RENDERIZAÇÃO DOS CARDS (Otimizado para Safari)
+// ----------------------------------------------------
+function carregarMusicas() {
+  onValue(songsRef, (snapshot) => {
+    songGrid.innerHTML = '';
+    allSongs = [];
 
-  // Botão Mudo / Desmudo
-  btnMute?.addEventListener('click', () => {
-    if (audioPlayer.volume > 0) {
-      lastVolume = audioPlayer.volume;
-      audioPlayer.volume = 0;
-      volumeSlider.value = 0;
-      updateVolumeIcon(0);
-    } else {
-      audioPlayer.volume = lastVolume || 1;
-      volumeSlider.value = audioPlayer.volume;
-      updateVolumeIcon(audioPlayer.volume);
+    if (!snapshot.exists()) {
+      renderEmptyState();
+      return;
     }
-  });
-}
 
-function updateVolumeIcon(volume) {
-  if (!volumeIcon) return;
-  volumeIcon.className = 'fa-solid ';
-  if (volume === 0) {
-    volumeIcon.className += 'fa-volume-xmark';
-  } else if (volume < 0.5) {
-    volumeIcon.className += 'fa-volume-low';
-  } else {
-    volumeIcon.className += 'fa-volume-high';
-  }
-}
-//converte o arquivo para base64
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-}
-
-// Modal
-btnOpenModal?.addEventListener('click', () => {
-  songForm.reset();
-  modal.classList.remove('hidden');
-});
-
-btnCloseModal?.addEventListener('click', () => {
-  modal.classList.add('hidden');
-});
-
-// READ: Ouvir banco em tempo real
-onValue(songsRef, (snapshot) => {
-  const data = snapshot.val();
-  allSongs = [];
-  
-  if (data) {
+    const data = snapshot.val();
     Object.keys(data).forEach((id) => {
       allSongs.push({ id, ...data[id] });
     });
-  }
-  
-  const termo = searchInput ? searchInput.value.toLowerCase().trim() : '';
-  filtrarERenderizar(termo);
-});
 
-// Pesquisa
-searchInput?.addEventListener('input', (e) => {
-  const termo = e.target.value.toLowerCase().trim();
-  filtrarERenderizar(termo);
-});
-
-function filtrarERenderizar(termo) {
-  const filtradas = allSongs.filter(song => {
-    const nome = (song.nome || '').toLowerCase();
-    const estilo = (song.estilo || '').toLowerCase();
-    const genero = (song.genero || '').toLowerCase();
-    return nome.includes(termo) || estilo.includes(termo) || genero.includes(termo);
+    filtrarERenderizar(searchInput?.value.toLowerCase().trim() || '');
   });
-
-  renderSongList(filtradas);
 }
 
-function renderSongList(songsToRender) {
-  songGrid.innerHTML = '';
-
-  if (songsToRender.length === 0) {
-    songGrid.innerHTML = '<p style="color: #b3b3b3; grid-column: 1/-1;">Nenhuma música encontrada.</p>';
-    return;
-  }
-
-  songsToRender.forEach(song => renderSongCard(song));
-}
-
-// Renderizar Card Individual
 function renderSongCard(song) {
   const card = document.createElement('div');
   card.className = 'song-card';
@@ -159,7 +85,7 @@ function renderSongCard(song) {
   const coverSrc = song.capaBase64 || DEFAULT_COVER_SVG;
 
   card.innerHTML = `
-    <img src="${coverSrc}" alt="Capa">
+    <img src="${coverSrc}" alt="Capa da música">
     <h3>${song.nome}</h3>
     <p><strong>Artista:</strong> ${song.estilo}</p>
     <p><strong>Gênero:</strong> ${song.genero}</p>
@@ -169,24 +95,28 @@ function renderSongCard(song) {
     </div>
   `;
 
-  // Tocar música com validação de áudio
-  card.querySelector('.btn-play').addEventListener('click', () => {
-    if (song.audioBase64 && song.audioBase64.startsWith('data:audio')) {
+  // AÇÃO TOCAR: Atribui o áudio levemente sob demanda para evitar travamentos no Safari
+  card.querySelector('.btn-play').addEventListener('click', async () => {
+    try {
+      if (!song.audioBase64 || !song.audioBase64.startsWith('data:audio')) {
+        alert("Esta música não possui um arquivo de áudio válido.");
+        return;
+      }
+
       audioPlayer.src = song.audioBase64;
       playerCover.src = coverSrc;
       playerTitle.textContent = song.nome;
       playerArtist.textContent = `${song.estilo} • ${song.genero}`;
-      
-      audioPlayer.play().catch(err => {
-        console.error("Erro ao tocar áudio:", err);
-        alert("O arquivo de áudio está corrompido ou o navegador bloqueou a reprodução.");
-      });
-    } else {
-      alert("Esta música não possui um arquivo MP3 válido salvo.");
+
+      // Inicia reprodução
+      await audioPlayer.play();
+    } catch (err) {
+      console.error("Erro ao reproduzir áudio:", err);
+      alert("O navegador impediu a execução ou o arquivo de áudio é muito pesado para a memória.");
     }
   });
 
-  // Remover da Playlist (Excluir do banco)
+  // AÇÃO REMOVER
   card.querySelector('.btn-delete').addEventListener('click', async () => {
     if (confirm(`Deseja remover "${song.nome}" da playlist?`)) {
       try {
@@ -200,20 +130,66 @@ function renderSongCard(song) {
   songGrid.appendChild(card);
 }
 
-// CREATE (Adicionar nova música)
+function renderEmptyState() {
+  songGrid.innerHTML = `
+    <div class="empty-state" style="grid-column: 1/-1; text-align: center; color: #b3b3b3; padding: 40px 0;">
+      <i class="fa-solid fa-music" style="font-size: 48px; margin-bottom: 16px; color: #1db954;"></i>
+      <p>Sua biblioteca está vazia.</p>
+      <p>Clique em "+ Nova Música" para adicionar suas faixas!</p>
+    </div>
+  `;
+}
+
+// ----------------------------------------------------
+// 3. BARRA DE PESQUISA (BUSCA)
+// ----------------------------------------------------
+searchInput?.addEventListener('input', (e) => {
+  const termo = e.target.value.toLowerCase().trim();
+  filtrarERenderizar(termo);
+});
+
+function filtrarERenderizar(termo) {
+  songGrid.innerHTML = '';
+
+  const musicasFiltradas = allSongs.filter(song => {
+    return (song.nome && song.nome.toLowerCase().includes(termo)) ||
+           (song.estilo && song.estilo.toLowerCase().includes(termo)) ||
+           (song.genero && song.genero.toLowerCase().includes(termo));
+  });
+
+  if (musicasFiltradas.length === 0) {
+    if (allSongs.length === 0) {
+      renderEmptyState();
+    } else {
+      songGrid.innerHTML = '<p style="grid-column: 1/-1; color: #b3b3b3;">Nenhuma música encontrada com essa busca.</p>';
+    }
+    return;
+  }
+
+  musicasFiltradas.forEach(song => renderSongCard(song));
+}
+
+// ----------------------------------------------------
+// 4. CADASTRO DE MÚSICAS (CREATE)
+// ----------------------------------------------------
 songForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const nome = document.getElementById('song-name').value;
   const estilo = document.getElementById('song-style').value;
   const genero = document.getElementById('song-genre').value;
-  
   const mp3File = document.getElementById('song-file').files[0];
   const coverFile = document.getElementById('song-cover-file').files[0];
   const saveBtn = document.getElementById('btn-save');
 
   if (!mp3File) {
     alert("Selecione um arquivo MP3 para cadastrar a música.");
+    return;
+  }
+
+  // Trava de tamanho para não travar conexões de rede do celular (máx ~4MB)
+  if (mp3File.size > 4.5 * 1024 * 1024) {
+    alert("O arquivo MP3 é muito pesado para o banco em texto (limite recomendado: 4MB). Escolha um arquivo menor.");
     return;
   }
 
@@ -237,9 +213,71 @@ songForm?.addEventListener('submit', async (e) => {
     songForm.reset();
   } catch (error) {
     console.error("Erro ao salvar música:", error);
-    alert("Erro ao salvar! Verifique se o arquivo MP3 não é muito pesado.");
+    alert("Erro ao salvar a música no banco de dados.");
   } finally {
     saveBtn.disabled = false;
     saveBtn.textContent = "Salvar";
   }
 });
+
+// Conversor de arquivo para Base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+}
+
+// ----------------------------------------------------
+// 5. CONTROLE DO MODAL
+// ----------------------------------------------------
+btnOpenModal?.addEventListener('click', () => {
+  modal.classList.remove('hidden');
+});
+
+btnCloseModal?.addEventListener('click', () => {
+  modal.classList.add('hidden');
+  songForm.reset();
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.classList.add('hidden');
+    songForm.reset();
+  }
+});
+
+// ----------------------------------------------------
+// 6. CONTROLE DE VOLUME (com parseFloat)
+// ----------------------------------------------------
+volumeSlider?.addEventListener('input', (e) => {
+  const vol = parseFloat(e.target.value);
+  audioPlayer.volume = vol;
+  atualizarIconeVolume(vol);
+});
+
+btnMute?.addEventListener('click', () => {
+  if (audioPlayer.volume > 0) {
+    lastVolume = audioPlayer.volume;
+    audioPlayer.volume = 0;
+    volumeSlider.value = 0;
+    atualizarIconeVolume(0);
+  } else {
+    audioPlayer.volume = lastVolume;
+    volumeSlider.value = lastVolume;
+    atualizarIconeVolume(lastVolume);
+  }
+});
+
+function atualizarIconeVolume(vol) {
+  if (!volumeIcon) return;
+  if (vol === 0) {
+    volumeIcon.className = 'fa-solid fa-volume-xmark';
+  } else if (vol < 0.5) {
+    volumeIcon.className = 'fa-solid fa-volume-low';
+  } else {
+    volumeIcon.className = 'fa-solid fa-volume-high';
+  }
+}
