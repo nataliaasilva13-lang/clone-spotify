@@ -4,12 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spotify Clone - Biblioteca</title>
+  
+  <!-- Configurações PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1db954">
+
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="app-container">
-    <!-- Sidebar / Menu Lateral -->
+    
+    <!-- Sidebar / Topbar no mobile -->
     <aside class="sidebar">
       <div class="logo">
         <i class="fa-brands fa-spotify"></i>
@@ -21,14 +27,16 @@
         <strong id="user-email-display">Carregando...</strong>
       </div>
 
-      <button id="btn-open-modal" class="btn-primary">+ Nova Música</button>
-      <button id="btn-logout" class="btn-danger btn-logout">Sair</button>
+      <div class="sidebar-actions">
+        <button id="btn-open-modal" class="btn-primary">+ Nova Música</button>
+        <button id="btn-logout" class="btn-danger btn-logout">Sair</button>
+      </div>
     </aside>
 
     <!-- Conteúdo Principal -->
     <main class="main-content">
       <header>
-        <h1>Sua Playlist</h1>
+        <h1>Sua Biblioteca</h1>
         <div class="search-container">
           <input 
             type="search" 
@@ -39,15 +47,15 @@
       </header>
 
       <section class="song-grid" id="song-grid">
-        <!-- Cards de músicas carregados pelo JS -->
+        <!-- Cards inseridos via crud.js -->
       </section>
     </main>
   </div>
 
-  <!-- Player Fixo no Rodapé -->
+  <!-- Rodapé / Player de Áudio -->
   <footer class="player-bar">
     <div class="track-info">
-      <img id="player-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='%231db954'><rect width='100%' height='100%' fill='%23282828'/><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>" alt="Capa da música" class="player-album-art">
+      <img id="player-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='%231db954'><rect width='100%' height='100%' fill='%23282828'/><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>" alt="Capa" class="player-album-art">
       <div class="track-text">
         <span id="player-title">Nenhuma música selecionada</span>
         <span id="player-artist">-</span>
@@ -58,7 +66,6 @@
       <audio id="audio-player" controls></audio>
     </div>
 
-    <!-- Controle de Volume -->
     <div class="volume-container">
       <button id="btn-mute" class="btn-icon" title="Mudar Mudo">
         <i id="volume-icon" class="fa-solid fa-volume-high"></i>
@@ -67,11 +74,12 @@
     </div>
   </footer>
 
-  <!-- Modal para Adicionar Música à Playlist -->
+  <!-- Modal para adicionar música -->
   <div id="modal" class="modal hidden">
     <div class="modal-content">
       <span id="btn-close-modal" class="close">&times;</span>
       <h2>Adicionar Música à Playlist</h2>
+      
       <form id="song-form">
         <label for="song-name">Nome da Música:</label>
         <input type="text" id="song-name" required placeholder="Ex: Shape of You">
@@ -93,6 +101,14 @@
     </div>
   </div>
 
+  <!-- Registro do Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('Service Worker Registrado!'))
+        .catch((err) => console.error('Erro no SW:', err));
+    }
+  </script>
   <script type="module" src="./firebaseconfig.js"></script>
   <script type="module" src="crud.js"></script>
 </body>

@@ -3,57 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spotify - Cadastre-se ou Entre</title>
+  <title>Spotify Clone - Entrar</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1db954">
+
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="login-body">
-
   <div class="login-container">
     <div class="login-header">
       <i class="fa-brands fa-spotify spotify-logo"></i>
-      <h1>Música para todos.</h1>
+      <h1>Spotify Clone</h1>
     </div>
 
-    <!-- Alternador de Abas -->
     <div class="auth-tabs">
-      <button id="tab-register" class="tab-btn active">Criar Conta</button>
-      <button id="tab-login" class="tab-btn">Entrar</button>
+      <button id="tab-login" class="tab-btn active">Entrar</button>
+      <button id="tab-signup" class="tab-btn">Cadastrar</button>
     </div>
 
-    <!-- Formulário de Cadastro -->
-    <form id="register-form" class="auth-form">
-      <div class="input-group">
-        <label for="reg-email">E-mail</label>
-        <input type="email" id="reg-email" placeholder="seuemail@exemplo.com" required>
-      </div>
-
-      <div class="input-group">
-        <label for="reg-password">Senha (mínimo 6 caracteres)</label>
-        <input type="password" id="reg-password" placeholder="Crie uma senha forte" required minlength="6">
-      </div>
-
-      <button type="submit" class="btn-primary btn-block">Inscrever-se</button>
-    </form>
-
-    <!-- Formulário de Login -->
-    <form id="login-form" class="auth-form hidden">
+    <form id="form-login" class="auth-form">
       <div class="input-group">
         <label for="login-email">E-mail</label>
-        <input type="email" id="login-email" placeholder="seuemail@exemplo.com" required>
+        <input type="email" id="login-email" required placeholder="seu@email.com">
       </div>
-
       <div class="input-group">
         <label for="login-password">Senha</label>
-        <input type="password" id="login-password" placeholder="Sua senha" required>
+        <input type="password" id="login-password" required placeholder="Sua senha">
       </div>
-
       <button type="submit" class="btn-primary btn-block">Entrar</button>
     </form>
 
-    <div id="auth-error" class="error-message"></div>
+    <form id="form-signup" class="auth-form hidden">
+      <div class="input-group">
+        <label for="signup-email">E-mail</label>
+        <input type="email" id="signup-email" required placeholder="seu@email.com">
+      </div>
+      <div class="input-group">
+        <label for="signup-password">Senha</label>
+        <input type="password" id="signup-password" required placeholder="Mínimo 6 caracteres">
+      </div>
+      <button type="submit" class="btn-primary btn-block">Criar Conta</button>
+    </form>
+
+    <p id="auth-error" class="error-message"></p>
   </div>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
   <script type="module" src="./firebaseconfig.js"></script>
   <script type="module" src="auth.js"></script>
 </body>
